@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign Up - Library Management System{% endblock %}
+
+{% block content %}
+<nav class="navbar">
+    <div class="container">
+        <div class="navbar-brand">
+            <h1>📚 Library Management System</h1>
+        </div>
+        <ul class="navbar-menu">
+            <li><a href="/">Home</a></li>
+            <li><a href="/login" class="btn-login">Login</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="auth-container">
+    <div class="auth-card auth-card-large">
+        <h2>Create Your Account</h2>
+        <form id="signupForm" method="POST">
+            <div class="form-group">
+                <label for="full_name">Full Name</label>
+                <input 
+                    type="text" 
+                    id="full_name" 
+                    name="full_name" 
+                    placeholder="Enter your full name" 
+                    required
+                >
+                <span class="error-message" id="fullNameError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    name="username" 
+                    placeholder="Choose a username" 
+                    required
+                >
+                <span class="error-message" id="usernameError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    placeholder="Enter your email" 
+                    required
+                >
+                <span class="error-message" id="emailError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    placeholder="Create a strong password (min 6 characters)" 
+                    required
+                >
+                <span class="error-message" id="passwordError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="confirm_password">Confirm Password</label>
+                <input 
+                    type="password" 
+                    id="confirm_password" 
+                    name="confirm_password" 
+                    placeholder="Confirm your password" 
+                    required
+                >
+                <span class="error-message" id="confirmPasswordError"></span>
+            </div>
+
+            <div id="generalError" class="error-message"></div>
+
+            <button type="submit" class="btn btn-primary btn-full">Create Account</button>
+        </form>
+
+        <p class="auth-link">
+            Already have an account? <a href="/login">Login here</a>
+        </p>
+    </div>
+</div>
+
+<script>
+document.getElementById('signupForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    // Clear previous errors
+    document.getElementById('fullNameError').textContent = '';
+    document.getElementById('usernameError').textContent = '';
+    document.getElementById('emailError').textContent = '';
+    document.getElementById('passwordError').textContent = '';
+    document.getElementById('confirmPasswordError').textContent = '';
+    document.getElementById('generalError').textContent = '';
+    
+    const fullName = document.getElementById('full_name').value.trim();
+    const username = document.getElementById('username').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm_password').value;
+    
+    // Client-side validation
+    let hasError = false;
+    
+    if (!fullName) {
+        document.getElementById('fullNameError').textContent = 'Full name is required';
+        hasError = true;
+    }
+    
+    if (!username) {
+        document.getElementById('usernameError').textContent = 'Username is required';
+        hasError = true;
+    }
+    
+    if (!email) {
+        document.getElementById('emailError').textContent = 'Email is required';
+        hasError = true;
+    } else if (!isValidEmail(email)) {
+        document.getElementById('emailError').textContent = 'Please enter a valid email';
+        hasError = true;
+    }
+    
+    if (!password) {
+        document.getElementById('passwordError').textContent = 'Password is required';
+        hasError = true;
+    } else if (password.length < 6) {
+        document.getElementById('passwordError').textContent = 'Password must be at least 6 characters';
+        hasError = true;
+    }
+    
+    if (!confirmPassword) {
+        document.getElementById('confirmPasswordError').textContent = 'Please confirm your password';
+        hasError = true;
+    } else if (password !== confirmPassword) {
+        document.getElementById('confirmPasswordError').textContent = 'Passwords do not match';
+        hasError = true;
+    }
+    
+    if (hasError) return;
+    
+    try {
+        const response = await fetch('/signup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                full_name: fullName,
+                username: username,
+                email: email,
+                password: password,
+                confirm_password: confirmPassword
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            showAlert('Account created successfully! Redirecting to login...', 'success');
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 1500);
+        } else {
+            document.getElementById('generalError').textContent = data.message || 'Signup failed';
+        }
+    } catch (error) {
+        document.getElementById('generalError').textContent = 'An error occurred. Please try again.';
+        console.error('Error:', error);
+    }
+});
+
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+</script>
+{% endblock %}

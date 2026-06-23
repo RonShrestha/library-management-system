@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - Library Management System{% endblock %}
+
+{% block content %}
+<nav class="navbar">
+    <div class="container">
+        <div class="navbar-brand">
+            <h1>📚 Library Management System</h1>
+        </div>
+        <ul class="navbar-menu">
+            <li><a href="/">Home</a></li>
+            <li><a href="/signup" class="btn-signup">Sign Up</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="auth-container">
+    <div class="auth-card">
+        <h2>Login</h2>
+        <form id="loginForm" method="POST">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    name="username" 
+                    placeholder="Enter your username" 
+                    required
+                >
+                <span class="error-message" id="usernameError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    placeholder="Enter your password" 
+                    required
+                >
+                <span class="error-message" id="passwordError"></span>
+            </div>
+
+            <div id="generalError" class="error-message"></div>
+
+            <button type="submit" class="btn btn-primary btn-full">Login</button>
+        </form>
+
+        <p class="auth-link">
+            Don't have an account? <a href="/signup">Sign up here</a>
+        </p>
+    </div>
+</div>
+
+<script>
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    // Clear previous errors
+    document.getElementById('usernameError').textContent = '';
+    document.getElementById('passwordError').textContent = '';
+    document.getElementById('generalError').textContent = '';
+    
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+    
+    // Client-side validation
+    let hasError = false;
+    
+    if (!username) {
+        document.getElementById('usernameError').textContent = 'Username is required';
+        hasError = true;
+    }
+    
+    if (!password) {
+        document.getElementById('passwordError').textContent = 'Password is required';
+        hasError = true;
+    }
+    
+    if (hasError) return;
+    
+    try {
+        const response = await fetch('/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                username: username,
+                password: password
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            showAlert('Login successful! Redirecting...', 'success');
+            setTimeout(() => {
+                window.location.href = '/dashboard';
+            }, 1500);
+        } else {
+            document.getElementById('generalError').textContent = data.message || 'Login failed';
+        }
+    } catch (error) {
+        document.getElementById('generalError').textContent = 'An error occurred. Please try again.';
+        console.error('Error:', error);
+    }
+});
+</script>
+{% endblock %}
