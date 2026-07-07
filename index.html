@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farm Management System</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <link href="https://cdn.tailwindcss.com" rel="stylesheet">
+    
+    <!-- sql.js WASM Library (for in-browser SQLite) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.12.0/sql-wasm.js"></script>
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation Bar -->
+    <nav class="bg-green-600 text-white shadow-lg">
+        <div class="max-w-6xl mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold">🌾 Farm Management System</h1>
+                <div class="flex gap-2">
+                    <button id="homeBtn" class="nav-btn px-4 py-2 rounded bg-green-500 hover:bg-green-700 transition">Dashboard</button>
+                    <button id="recordsBtn" class="nav-btn px-4 py-2 rounded bg-green-500 hover:bg-green-700 transition">Records</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto px-4 py-8">
+        <!-- HOME PAGE (Dashboard) -->
+        <div id="homePage" class="page">
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">Dashboard Overview</h2>
+                
+                <!-- Metrics Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <!-- Total Users Card -->
+                    <div class="bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg p-6 text-white shadow-md">
+                        <h3 class="text-lg font-semibold mb-2">👥 Total Users</h3>
+                        <p id="totalUsers" class="text-4xl font-bold">0</p>
+                    </div>
+                    
+                    <!-- Total Crops Card -->
+                    <div class="bg-gradient-to-br from-green-400 to-green-600 rounded-lg p-6 text-white shadow-md">
+                        <h3 class="text-lg font-semibold mb-2">🌱 Total Crops</h3>
+                        <p id="totalCrops" class="text-4xl font-bold">0</p>
+                    </div>
+                    
+                    <!-- Total Inventory Items Card -->
+                    <div class="bg-gradient-to-br from-orange-400 to-orange-600 rounded-lg p-6 text-white shadow-md">
+                        <h3 class="text-lg font-semibold mb-2">📦 Total Inventory Items</h3>
+                        <p id="totalInventory" class="text-4xl font-bold">0</p>
+                    </div>
+                </div>
+
+                <!-- Summary Tables -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Users Summary -->
+                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">Users</h3>
+                        <div id="dashboardUsersTable" class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="bg-gray-200 text-gray-800">
+                                    <tr>
+                                        <th class="px-4 py-2 text-left">Username</th>
+                                        <th class="px-4 py-2 text-left">Role</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dashboardUsersList"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Crops Status Summary -->
+                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">Crops Status Summary</h3>
+                        <div id="dashboardCropsStatus">
+                            <!-- Status summary will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RECORDS PAGE -->
+        <div id="recordsPage" class="page hidden">
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">Manage Records</h2>
+                
+                <!-- Tabs Navigation -->
+                <div class="flex gap-4 mb-6 border-b border-gray-300">
+                    <button id="cropsTabBtn" class="tab-btn px-4 py-2 font-semibold text-green-600 border-b-2 border-green-600">🌱 Crops</button>
+                    <button id="inventoryTabBtn" class="tab-btn px-4 py-2 font-semibold text-gray-600 border-b-2 border-transparent hover:text-green-600">📦 Inventory</button>
+                </div>
+
+                <!-- CROPS TAB -->
+                <div id="cropsTab" class="tab-content">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-bold text-gray-800">Crops Management</h3>
+                        <button id="addCropBtn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">+ Add Crop</button>
+                    </div>
+
+                    <!-- Search Bar -->
+                    <div class="mb-4">
+                        <input type="text" id="cropSearch" placeholder="Search crops by name..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                    </div>
+
+                    <!-- Crops Table -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse border border-gray-300">
+                            <thead class="bg-green-100">
+                                <tr>
+                                    <th class="border border-gray-300 px-4 py-2 text-left">ID</th>
+                                    <th class="border border-gray-300 px-4 py-2 text-left">Name</th>
+                                    <th class="border border-gray-300 px-4 py-2 text-left">Type</th>
+                                    <th class="border border-gray-300 px-4 py-2 text-left">Status</th>
+                                    <th class="border border-gray-300 px-4 py-2 text-left">Farmer</th>
+                                    <th class="border border-gray-300 px-4 py-2 text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cropsList" class="divide-y divide-gray-300"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- INVENTORY TAB -->
+                <div id="inventoryTab" class="tab-content hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-bold text-gray-800">Inventory Management</h3>
+                        <button id="addInventoryBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">+ Add Item</button>
+                    </div>
+
+                    <!-- Search Bar -->
+                    <div class="mb-4">
+                        <input type="text" id="inventorySearch" placeholder="Search items by name..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <!-- Inventory Table -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse border border-gray-300">
+                            <thead class="bg-blue-100">
+                                <tr>
+                                    <th class="border border-gray-300 px-4 py-2 text-left">ID</th>
+                                    <th class="border border-gray-300 px-4 py-2 text-left">Item Name</th>
+                                    <th class="border border-gray-300 px-4 py-2 text-left">Quantity</th>
+                                    <th class="border border-gray-300 px-4 py-2 text-left">Associated Crop</th>
+                                    <th class="border border-gray-300 px-4 py-2 text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventoryList" class="divide-y divide-gray-300"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ADD/EDIT CROP MODAL -->
+    <div id="cropModal" class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-2xl p-8 w-96">
+            <h3 id="cropModalTitle" class="text-2xl font-bold text-gray-800 mb-6">Add Crop</h3>
+            <form id="cropForm" class="space-y-4">
+                <input type="hidden" id="cropId">
+                
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Crop Name *</label>
+                    <input type="text" id="cropName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                </div>
+
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Crop Type *</label>
+                    <select id="cropType" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                        <option value="">-- Select Type --</option>
+                        <option value="Cereal">Cereal</option>
+                        <option value="Vegetable">Vegetable</option>
+                        <option value="Fruit">Fruit</option>
+                        <option value="Legume">Legume</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Status *</label>
+                    <select id="cropStatus" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                        <option value="">-- Select Status --</option>
+                        <option value="Growing">Growing</option>
+                        <option value="Ready for Harvest">Ready for Harvest</option>
+                        <option value="Harvested">Harvested</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Farmer *</label>
+                    <select id="cropUserId" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                        <option value="">-- Select Farmer --</option>
+                    </select>
+                </div>
+
+                <div class="flex gap-4 pt-4">
+                    <button type="submit" class="flex-1 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition font-semibold">Save</button>
+                    <button type="button" id="closeCropModal" class="flex-1 bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500 transition font-semibold">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ADD/EDIT INVENTORY MODAL -->
+    <div id="inventoryModal" class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-2xl p-8 w-96">
+            <h3 id="inventoryModalTitle" class="text-2xl font-bold text-gray-800 mb-6">Add Inventory Item</h3>
+            <form id="inventoryForm" class="space-y-4">
+                <input type="hidden" id="inventoryId">
+                
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Item Name *</label>
+                    <input type="text" id="itemName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Quantity *</label>
+                    <input type="number" id="itemQuantity" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" min="1" required>
+                </div>
+
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Associated Crop *</label>
+                    <select id="itemCropId" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        <option value="">-- Select Crop --</option>
+                    </select>
+                </div>
+
+                <div class="flex gap-4 pt-4">
+                    <button type="submit" class="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition font-semibold">Save</button>
+                    <button type="button" id="closeInventoryModal" class="flex-1 bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500 transition font-semibold">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Core Application Logic -->
+    <script src="app.js"></script>
+</body>
+</html>

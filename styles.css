@@ -1,0 +1,178 @@
+/* ============================================
+   FARM MANAGEMENT SYSTEM - CUSTOM STYLES
+   ============================================ */
+
+/* Global Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+}
+
+/* Page Transitions */
+.page {
+    animation: fadeIn 0.3s ease-in;
+}
+
+.page.hidden {
+    display: none;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Modal Styles */
+.modal.hidden {
+    display: none;
+}
+
+.modal {
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Table Styles */
+table tbody tr:hover {
+    background-color: #f0f9ff;
+    transition: background-color 0.2s ease;
+}
+
+table tbody tr {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+table td {
+    padding: 12px 16px;
+}
+
+/* Button Styles */
+button {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+/* Action Buttons in Tables */
+.action-btn {
+    padding: 6px 12px;
+    margin: 0 4px;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.edit-btn {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.edit-btn:hover {
+    background-color: #2563eb;
+}
+
+.delete-btn {
+    background-color: #ef4444;
+    color: white;
+}
+
+.delete-btn:hover {
+    background-color: #dc2626;
+}
+
+/* Tab Navigation */
+.tab-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 12px 16px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+.tab-btn.active {
+    color: #16a34a;
+    border-bottom: 3px solid #16a34a;
+}
+
+.tab-content.hidden {
+    display: none;
+}
+
+/* Input & Select Focus States */
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    ring: 2px;
+    ring-color: #16a34a;
+}
+
+/* Search Input */
+#cropSearch,
+#inventorySearch {
+    transition: all 0.2s ease;
+}
+
+#cropSearch:focus,
+#inventorySearch:focus {
+    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+}
+
+/* Empty State Message */
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #9ca3af;
+}
+
+.empty-state p {
+    font-size: 1.125rem;
+}
+
+/* Loading State (if needed) */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .modal {
+        width: 90%;
+        margin: 20px;
+    }
+    
+    table {
+        font-size: 0.875rem;
+    }
+    
+    table td,
+    table th {
+        padding: 8px 12px;
+    }
+    
+    .action-btn {
+        padding: 4px 8px;
+        font-size: 0.75rem;
+        margin: 2px;
+    }
+}
